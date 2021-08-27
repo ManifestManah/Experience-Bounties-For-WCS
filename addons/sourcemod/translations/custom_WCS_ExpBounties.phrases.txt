@@ -1,0 +1,28 @@
+"Phrases"
+{
+	"Experience Bounty Announcement Promised"
+	{
+		"#format"		"{1:s},{2:d},{3:i}"
+		"en"			"{green}[WCS] {default}Player {lightgreen}{1}{default} killed {lightgreen}{2}{default} people and has a {lightgreen}{3}{default} XP bounty on his head."
+		"da"			"{green}[WCS] {default}Der udloves en {lightgreen}{3}{default} XP dusør på {lightgreen}{1}{default} som har dræbt {lightgreen}{2}{default} personer."
+	}
+
+	"Experience Bounty Announcement Collected"
+	{
+		"#format"		"{1:s},{2:s},{3:i}"
+		"en"			"{green}[WCS] {default}Player {lightgreen}{1}{default} earned the {lightgreen}{3}{default} XP bounty by killing {lightgreen}{2}{default}."
+		"da"			"{green}[WCS] {default}Spiller {lightgreen}{1}{default} modtog dusøren på {lightgreen}{3}{default} XP ved at dræbe {lightgreen}{2}{default}."
+	}
+
+	"Bounty Messages Enabled"
+	{
+		"en"			"{green}[WCS] {default}The experience bounty announcements are now {lightgreen}turned on{default}."
+		"da"			"{green}[WCS] {default}Experience dusørannonceringerne blev {lightgreen}slået til{default}."
+	}
+
+	"Bounty Messages Disabled"
+	{
+		"en"			"{green}[WCS] {default}The experience bounty announcements are now {lightgreen}turned off{default}."
+		"da"			"{green}[WCS] {default}Experience dusørannonceringerne blev {lightgreen}slået fra{default}."
+	}
+}
