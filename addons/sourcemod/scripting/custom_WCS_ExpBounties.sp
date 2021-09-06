@@ -74,151 +74,154 @@ public void Event_PlayerDeath(Handle event, const char[] name, bool dontBroadcas
 	// If Both the client and the attacker meets our criteria of client validation then execute this section
 	if(IsValidClient(client) && IsValidClient(attacker))
 	{
-		// If the attacker is dead when he kills someone e.g. with a molotov then this should not count towards his kill count
-		if(IsPlayerAlive(attacker))
+		// If the attacker is not the same person as the victim, then execute this section
+		if(attacker != client)
 		{
-			// Adds a kill to the killstreak of the player that killed the opponent
-			KillStreak[attacker] += 1;
-		}
-
-		// Obtains the value of our attackers kill streak and store the value inside of KillStreakAttackerCheck
-		int KillStreakAttackerCheck = KillStreak[attacker];
-
-		// Obtains the value of our attackers kill streak and store the value inside of KillStreakAttackerCheck
-		int KillStreakVictimCheck = KillStreak[client];
-
-		// Creates an integer variable matching our cvar_MinimumKillsForBounty convar's value
-		int MinimumKillsForBounty = GetConVarInt(cvar_MinimumKillsForBounty);
-
-		// If the attacker has killed more than 3 people in a row without dying or the map changing then execute this section
-		if(KillStreakAttackerCheck >= MinimumKillsForBounty)
-		{
-			// Creates an integer variable matching our cvar_BountyBaseExperience convar's value
-			int BountyBaseExperience = GetConVarInt(cvar_BountyBaseExperience);
-
-			// Creates an integer variable matching our cvar_BountyBonusExperience convar's value
-			int BountyBonusExperience = GetConVarInt(cvar_BountyBonusExperience);
-
-			// Creates an integer variable matching our cvar_BountyMaximumExperience convar's value
-			int BountyMaximumExperience = GetConVarInt(cvar_BountyMaximumExperience);
-
-			// Finds out how many additional kills the player has acquired
-			int KillDifference = KillStreakAttackerCheck - MinimumKillsForBounty;
-			
-			// Multiplies the bonus experience value by the amount of additional kills beyond the minimum amount of kills
-			int BountyTotalExperience = BountyBaseExperience + (BountyBonusExperience * KillDifference);
-
-			// If the maximum amount of experience is not set to 0 then execute this section
-			if (BountyMaximumExperience != 0)
+			// If the attacker is dead when he kills someone e.g. with a molotov then this should not count towards his kill count
+			if(IsPlayerAlive(attacker))
 			{
-				// If the total experience bounty exceeds the maximum amount of experience a player's bounty is allowed to become, then execute this section
-				if(BountyTotalExperience > BountyMaximumExperience)
+				// Adds a kill to the killstreak of the player that killed the opponent
+				KillStreak[attacker] += 1;
+			}
+
+			// Obtains the value of our attackers kill streak and store the value inside of KillStreakAttackerCheck
+			int KillStreakAttackerCheck = KillStreak[attacker];
+
+			// Obtains the value of our attackers kill streak and store the value inside of KillStreakAttackerCheck
+			int KillStreakVictimCheck = KillStreak[client];
+
+			// Creates an integer variable matching our cvar_MinimumKillsForBounty convar's value
+			int MinimumKillsForBounty = GetConVarInt(cvar_MinimumKillsForBounty);
+
+			// If the attacker has killed more than 3 people in a row without dying or the map changing then execute this section
+			if(KillStreakAttackerCheck >= MinimumKillsForBounty)
+			{
+				// Creates an integer variable matching our cvar_BountyBaseExperience convar's value
+				int BountyBaseExperience = GetConVarInt(cvar_BountyBaseExperience);
+
+				// Creates an integer variable matching our cvar_BountyBonusExperience convar's value
+				int BountyBonusExperience = GetConVarInt(cvar_BountyBonusExperience);
+
+				// Creates an integer variable matching our cvar_BountyMaximumExperience convar's value
+				int BountyMaximumExperience = GetConVarInt(cvar_BountyMaximumExperience);
+
+				// Finds out how many additional kills the player has acquired
+				int KillDifference = KillStreakAttackerCheck - MinimumKillsForBounty;
+				
+				// Multiplies the bonus experience value by the amount of additional kills beyond the minimum amount of kills
+				int BountyTotalExperience = BountyBaseExperience + (BountyBonusExperience * KillDifference);
+
+				// If the maximum amount of experience is not set to 0 then execute this section
+				if (BountyMaximumExperience != 0)
 				{
-					// Changes the total experience to the maximum experience allowed to be acquired from a bounty
-					BountyTotalExperience = BountyMaximumExperience;
+					// If the total experience bounty exceeds the maximum amount of experience a player's bounty is allowed to become, then execute this section
+					if(BountyTotalExperience > BountyMaximumExperience)
+					{
+						// Changes the total experience to the maximum experience allowed to be acquired from a bounty
+						BountyTotalExperience = BountyMaximumExperience;
+					}
+				}
+
+				// Loops through all the players online
+				for(int i = 1 ;i <= MaxClients; i++)
+				{
+					// If the client meets our criteria of validation then execute this section
+					if (IsValidClient(i))
+					{
+						// If the player is not a bot then execute this section
+						if (!IsFakeClient(i))
+						{
+							// If the player has the bounty announcement messages enabled then execute this section
+							if (option_bounty_announcemessage[i])
+							{
+								// Creates a variable to store the player's name within
+								char AttackerName[64];
+
+								// Obtains the attacker's name and store it within AttackerName
+								GetClientName(attacker, AttackerName, 64);
+
+								// Prints a message to the chat announcing the bounty
+								CPrintToChat(i, "%t", "Experience Bounty Announcement Promised", AttackerName, KillStreakAttackerCheck, BountyTotalExperience);
+							}
+						}
+					}
 				}
 			}
 
-			// Loops through all the players online
-			for(int i = 1 ;i <= MaxClients; i++)
+			// If the victim has killed more than 3 people in a row without dying or the map changing then execute this section
+			if(KillStreakVictimCheck >= MinimumKillsForBounty)
 			{
-				// If the client meets our criteria of validation then execute this section
-				if (IsValidClient(i))
+				// Creates an integer variable matching our cvar_BountyBaseExperience convar's value
+				int BountyBaseExperience = GetConVarInt(cvar_BountyBaseExperience);
+
+				// Creates an integer variable matching our cvar_BountyBonusExperience convar's value
+				int BountyBonusExperience = GetConVarInt(cvar_BountyBonusExperience);
+
+				// Creates an integer variable matching our cvar_BountyMaximumExperience convar's value
+				int BountyMaximumExperience = GetConVarInt(cvar_BountyMaximumExperience);
+
+				// Finds out how many additional kills the player has acquired
+				int KillDifference = KillStreakVictimCheck - MinimumKillsForBounty;
+				
+				// Multiplies the bonus experience value by the amount of additional kills beyond the minimum amount of kills
+				int BountyTotalExperience = BountyBaseExperience + (BountyBonusExperience * KillDifference);
+
+
+				// If the maximum amount of experience is not set to 0 then execute this section
+				if (BountyMaximumExperience != 0)
 				{
-					// If the player is not a bot then execute this section
-					if (!IsFakeClient(i))
+					// If the total experience bounty exceeds the maximum amount of experience a player's bounty is allowed to become, then execute this section
+					if(BountyTotalExperience > BountyMaximumExperience)
 					{
-						// If the player has the bounty announcement messages enabled then execute this section
-						if (option_bounty_announcemessage[i])
+						// Changes the total experience to the maximum experience allowed to be acquired from a bounty
+						BountyTotalExperience = BountyMaximumExperience;
+					}
+				}
+
+				// We create a variable named attackerid which we need as Source-Python commands uses userid's instead of indexes
+				int attackerid = GetEventInt(event, "attacker");
+
+				// Creates a variable named ServerCommandMessage which we'll store our message data within
+				char ServerCommandMessage[128];
+
+				// Formats a message and store it within our ServerCommandMessage variable
+				FormatEx(ServerCommandMessage, sizeof(ServerCommandMessage), "wcs_givexp %i %i", attackerid, BountyTotalExperience);
+
+				// Executes our GiveLevel server command on the player, to award them with levels
+				ServerCommand(ServerCommandMessage);
+
+				// Loops through all the players online
+				for(int i = 1 ;i <= MaxClients; i++)
+				{
+					// If the client meets our criteria of validation then execute this section
+					if (IsValidClient(i))
+					{
+						// If the player is not a bot then execute this section
+						if (!IsFakeClient(i))
 						{
-							// Creates a variable to store the player's name within
-							char AttackerName[64];
+							// If the player has the bounty announcement messages enabled then execute this section
+							if (option_bounty_announcemessage[i])
+							{
+								// Creates a variable to store the victim's name within
+								char ClientName[64];
 
-							// Obtains the attacker's name and store it within AttackerName
-							GetClientName(attacker, AttackerName, 64);
+								// Creates a variable to store the attacker's name within
+								char AttackerName[64];
 
-							// Prints a message to the chat announcing the bounty
-							CPrintToChat(i, "%t", "Experience Bounty Announcement Promised", AttackerName, KillStreakAttackerCheck, BountyTotalExperience);
+								// Obtains the client's name and store it within AttackerName
+								GetClientName(client, ClientName, 64);
+
+								// Obtains the attacker's name and store it within AttackerName
+								GetClientName(attacker, AttackerName, 64);
+
+								// Prints a message to the chat announcing the bounty
+								CPrintToChat(i, "%t", "Experience Bounty Announcement Collected", AttackerName, ClientName, BountyTotalExperience);
+							}
 						}
 					}
 				}
 			}
 		}
-
-		// If the victim has killed more than 3 people in a row without dying or the map changing then execute this section
-		if(KillStreakVictimCheck >= MinimumKillsForBounty)
-		{
-			// Creates an integer variable matching our cvar_BountyBaseExperience convar's value
-			int BountyBaseExperience = GetConVarInt(cvar_BountyBaseExperience);
-
-			// Creates an integer variable matching our cvar_BountyBonusExperience convar's value
-			int BountyBonusExperience = GetConVarInt(cvar_BountyBonusExperience);
-
-			// Creates an integer variable matching our cvar_BountyMaximumExperience convar's value
-			int BountyMaximumExperience = GetConVarInt(cvar_BountyMaximumExperience);
-
-			// Finds out how many additional kills the player has acquired
-			int KillDifference = KillStreakVictimCheck - MinimumKillsForBounty;
-			
-			// Multiplies the bonus experience value by the amount of additional kills beyond the minimum amount of kills
-			int BountyTotalExperience = BountyBaseExperience + (BountyBonusExperience * KillDifference);
-
-
-			// If the maximum amount of experience is not set to 0 then execute this section
-			if (BountyMaximumExperience != 0)
-			{
-				// If the total experience bounty exceeds the maximum amount of experience a player's bounty is allowed to become, then execute this section
-				if(BountyTotalExperience > BountyMaximumExperience)
-				{
-					// Changes the total experience to the maximum experience allowed to be acquired from a bounty
-					BountyTotalExperience = BountyMaximumExperience;
-				}
-			}
-
-			// We create a variable named attackerid which we need as Source-Python commands uses userid's instead of indexes
-			int attackerid = GetEventInt(event, "attacker");
-
-			// Creates a variable named ServerCommandMessage which we'll store our message data within
-			char ServerCommandMessage[128];
-
-			// Formats a message and store it within our ServerCommandMessage variable
-			FormatEx(ServerCommandMessage, sizeof(ServerCommandMessage), "wcs_givexp %i %i", attackerid, BountyTotalExperience);
-
-			// Executes our GiveLevel server command on the player, to award them with levels
-			ServerCommand(ServerCommandMessage);
-
-			// Loops through all the players online
-			for(int i = 1 ;i <= MaxClients; i++)
-			{
-				// If the client meets our criteria of validation then execute this section
-				if (IsValidClient(i))
-				{
-					// If the player is not a bot then execute this section
-					if (!IsFakeClient(i))
-					{
-						// If the player has the bounty announcement messages enabled then execute this section
-						if (option_bounty_announcemessage[i])
-						{
-							// Creates a variable to store the victim's name within
-							char ClientName[64];
-
-							// Creates a variable to store the attacker's name within
-							char AttackerName[64];
-
-							// Obtains the client's name and store it within AttackerName
-							GetClientName(client, ClientName, 64);
-
-							// Obtains the attacker's name and store it within AttackerName
-							GetClientName(attacker, AttackerName, 64);
-
-							// Prints a message to the chat announcing the bounty
-							CPrintToChat(i, "%t", "Experience Bounty Announcement Collected", AttackerName, ClientName, BountyTotalExperience);
-						}
-					}
-				}
-			}
-		}
-
 		// Changes the kill streak of the player that died to 0 
 		KillStreak[client] = 0;
 	}
